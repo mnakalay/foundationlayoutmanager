@@ -1,0 +1,8 @@
+.foundation-layout-container.cke_widget_element {
+    margin-top: 20px;
+}
+
+.foundation-layout-container.cke_widget_element .foundation-layout-column {
+    outline: 1px dashed black;
+    word-wrap: break-word;
+}

@@ -22,6 +22,7 @@ function pluginInit(editor) {
     if (editor.config.foundationlayoutmanager_loadfoundation) {
         CKEDITOR.document.appendStyleSheet(this.path + 'css/foundation.min.css');
     }
+    CKEDITOR.document.appendStyleSheet(this.path + 'css/style.css');
 
     var foundationLayoutManager = new FoundationLayoutManager(editor);
     foundationLayoutManager.generateWidgets();
