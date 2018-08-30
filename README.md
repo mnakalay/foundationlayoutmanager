@@ -47,4 +47,6 @@ Ths plugin was actually a request from a user of Concrete5 CKEditor plugin insta
 
 **config.foundationlayoutmanager_buttonboxWidth = 58** *(the width of each layout-preview button in the dialog)*
 
+**config.foundationlayoutmanager_columnStart = "small"** *(The Foundation 5 grid device breakpoint: small, medium, large)*
+
 **Name for adding into the toolbar : "FoundationLayoutManager"**

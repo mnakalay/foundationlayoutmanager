@@ -16,6 +16,7 @@ CKEDITOR.plugins.add('foundationlayoutmanager', {
  * config.foundationlayoutmanager_loadfoundation   By default is set to false, otherwise loads the embedded foundation style.
  * config.foundationlayoutmanager_allowedContent  By default is set to allow all tags.
  * config.foundationlayoutmanager_buttonBoxWidth  The width of each layout-preview button in the dialog.
+ * config.foundationlayoutmanager_columnStart  The Foundation 5 grid device breakpoint: small, medium, large.
  */
 function pluginInit(editor) {
     if (editor.config.foundationlayoutmanager_loadfoundation) {
@@ -65,12 +66,19 @@ function pluginInit(editor) {
  *   Author: Radoslav Petkov
  *
  *   Variables stored into the editor's object:
- *   {ckeditor.dom.element} editor.foundationlayoutmanager.selectedLayout.wrappet The selected widget wrapper element.
+ *   {ckeditor.dom.element} editor.foundationlayoutmanager.selectedLayout.wrapper The selected widget wrapper element.
  *   {ckeditor.dom.element} editor.foundationlayoutmanager.selectedLayout.widget The selected widget instance.
  */
 function FoundationLayoutManager(editor) {
     this.editor = editor;
-    this.foundationLayoutBuilder = new FoundationLayoutBuilder();
+
+    var columnStart = editor.config.foundationlayoutmanager_columnStart;
+    if (columnStart === undefined) {
+        columnStart = 'small';
+    }
+    this.setColumnStart(columnStart);
+
+    this.foundationLayoutBuilder = new FoundationLayoutBuilder(columnStart);
     if (!editor.config.foundationlayoutmanager_buildDefaultLayouts) {
         this.foundationLayoutBuilder.buildDefaultLayouts();
     }
@@ -80,6 +88,9 @@ FoundationLayoutManager.prototype.setAllowedContent = function(allowedContent) {
     this.allowedContent = allowedContent;
 };
 
+FoundationLayoutManager.prototype.setColumnStart = function(columnStart) {
+    this.columnStart = columnStart;
+};
 /**
  * The button's view should be small representation of the actual layout.
  * In order to accomplish it ckeditor's styles should be overrided by adding hardcoded styles to the elements
@@ -181,6 +192,7 @@ FoundationLayoutManager.prototype.addFoundationLayoutDialog = function() {
 };
 
 FoundationLayoutManager.prototype.changeLayoutAction = function(newLayoutName) {
+
     var newColumns = newLayoutName.replace('foundation', '').split('/');
     var newColumnsCount = newColumns.length;
     var selectedWidget = this.widget;
@@ -191,9 +203,8 @@ FoundationLayoutManager.prototype.changeLayoutAction = function(newLayoutName) {
     var columnsCount = columns.count();
 
     var attributeTemplate = [];
-    attributeTemplate.push('small-{size}');
-    attributeTemplate.push('medium-{size}');
-    attributeTemplate.push('large-{size}');
+
+    attributeTemplate.push(this.layoutManager.columnStart + '-{size}');
     attributeTemplate.push('columns');
     var pattern = /(small|medium|large)-/;
 
@@ -239,7 +250,7 @@ FoundationLayoutManager.prototype.changeLayoutAction = function(newLayoutName) {
             }
             // Generate unique id for the editable
             // Due to this issue http://dev.ckeditor.com/ticket/12524
-            var uniqueId = new Date().getTime();
+            var uniqueId = new Date().getTime() + Math.floor((Math.random() * 100) + 1);
             insertedCol.addClass('foundationColumnEditable' + uniqueId);
             row.append(insertedCol);
             selectedWidget.initEditable(uniqueId, {
@@ -253,7 +264,8 @@ FoundationLayoutManager.prototype.manageFoundationLayoutDialog = function() {
     var width = 200;
     var height = 100;
     var layouts = this.generateButtonObjects(this.changeLayoutAction.bind({
-        widget: this.editor.foundationlayoutmanager.selectedWidget
+        widget: this.editor.foundationlayoutmanager.selectedWidget,
+        layoutManager: this
     }));
     return this.createDialogDefinition(this.editor.lang.foundationlayoutmanager.manageLayoutDialogTitle, width, height, layouts);
 };
@@ -330,43 +342,43 @@ FoundationLayoutManager.prototype.removeLayoutWidget = function() {
  *  Class that builds the default templates of the layouts. It is also used to hold all available
  *  layout templates and provide them for use in the widget creation.
  */
-function FoundationLayoutBuilder() {
+function FoundationLayoutBuilder(columnStart) {
     var defaultLayoutTemplates = [];
     defaultLayoutTemplates.push(new CKEDITOR.template(
-        '<div class="foundation-layout-container">\
-             <div class="row layout-row" >\
-                 <div class="foundation-layout-column-one small-{size1} medium-{size1} large-{size1} columns foundation-layout-column">\
-                    <p></p>\
-                </div>\
-            </div>\
-        </div>'
+        '<div class="foundation-layout-container">' +
+        '<div class="row layout-row" >' +
+        '<div class="foundation-layout-column-one ' + columnStart + '-{size1} columns foundation-layout-column">' +
+        '<p></p>' +
+        '</div>' +
+        '</div>' +
+        '</div>'
     ));
     defaultLayoutTemplates.push(new CKEDITOR.template(
-        '<div class="foundation-layout-container">\
-            <div class="row layout-row">\
-                 <div class="foundation-layout-column-one small-{size1} medium-{size1} large-{size1} columns foundation-layout-column ">\
-                     <p></p>\
-                </div>\
-                 <div class="foundation-layout-column-two small-{size2} medium-{size2} large-{size2} columns foundation-layout-column">\
-                    <p></p>\
-                 </div>\
-            </div>\
-        </div>'
+        '<div class="foundation-layout-container">' +
+        '<div class="row layout-row" >' +
+        '<div class="foundation-layout-column-one ' + columnStart + '-{size1} columns foundation-layout-column">' +
+        '<p></p>' +
+        '</div>' +
+        '<div class="foundation-layout-column-two ' + columnStart + '-{size2} columns foundation-layout-column">' +
+        '<p></p>' +
+        '</div>' +
+        '</div>' +
+        '</div>'
     ));
     defaultLayoutTemplates.push(new CKEDITOR.template(
-        '<div class="foundation-layout-container">\
-            <div class="row layout-row">\
-                <div class="foundation-layout-column-one small-{size1} medium-{size1} large-{size1} columns foundation-layout-column">\
-                      <p></p>\
-                </div>\
-                <div class="foundation-layout-column-two small-{size2} medium-{size2} large-{size2} columns foundation-layout-column">\
-                    <p></p>\
-                </div>\
-                <div class="foundation-layout-column-three small-{size3} medium-{size3} large-{size3} columns foundation-layout-column">\
-                    <p></p>\
-                </div>\
-            </div>\
-        </div>'
+        '<div class="foundation-layout-container">' +
+        '<div class="row layout-row" >' +
+        '<div class="foundation-layout-column-one ' + columnStart + '-{size1} columns foundation-layout-column">' +
+        '<p></p>' +
+        '</div>' +
+        '<div class="foundation-layout-column-two ' + columnStart + '-{size2} columns foundation-layout-column">' +
+        '<p></p>' +
+        '</div>' +
+        '<div class="foundation-layout-column-three ' + columnStart + '-{size3} columns foundation-layout-column">' +
+        '<p></p>' +
+        '</div>' +
+        '</div>' +
+        '</div>'
     ));
 
     var defaultFoundationLayoutTypes = [];
