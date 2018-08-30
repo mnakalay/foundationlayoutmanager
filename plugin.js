@@ -16,7 +16,6 @@ CKEDITOR.plugins.add('foundationlayoutmanager', {
  * config.foundationlayoutmanager_loadfoundation   By default is set to false, otherwise loads the embedded foundation style.
  * config.foundationlayoutmanager_allowedContent  By default is set to allow all tags.
  * config.foundationlayoutmanager_buttonBoxWidth  The width of each layout-preview button in the dialog.
- * config.foundationlayoutmanager_removeLayoutMsg The message displayed on the window for confirmation of the remove layout operation.
  */
 function pluginInit(editor) {
     if (editor.config.foundationlayoutmanager_loadfoundation) {
